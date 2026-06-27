@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from services.vector_db import search, get_index_stats
-from services.openai_service import answer_with_context
+from services.openai_service import answer_general, answer_with_context
 from config import TOP_K
 
 router = APIRouter()
@@ -30,15 +30,22 @@ async def query_rag(request: QueryRequest):
 
     stats = get_index_stats()
     if stats["total_vectors"] == 0:
-        raise HTTPException(
-            status_code=404,
-            detail="No documents indexed yet. Please upload files first."
+        answer = await answer_general(query)
+        return QueryResponse(
+            answer=answer,
+            sources=[],
+            chunks_used=0,
         )
 
     # Semantic search
     results = await search(query, top_k=request.top_k)
     if not results:
-        raise HTTPException(status_code=404, detail="No relevant chunks found.")
+        answer = await answer_general(query)
+        return QueryResponse(
+            answer=answer,
+            sources=[],
+            chunks_used=0,
+        )
 
     # Extract text chunks for context
     context_chunks = [r["text"] for r in results]

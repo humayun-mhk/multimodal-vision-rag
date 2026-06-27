@@ -109,3 +109,24 @@ Answer based on the context above:"""
     )
 
     return response.choices[0].message.content.strip()
+
+
+async def answer_general(query: str) -> str:
+    """
+    Answer as a normal chat assistant when no indexed document context is available.
+    """
+    system_prompt = """You are a helpful AI assistant.
+Answer the user's question directly and clearly.
+If the question appears to be about uploaded documents, explain that no document context is currently available and answer generally if possible."""
+
+    response = await _client().chat.completions.create(
+        model=OPENAI_VISION_MODEL,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": query},
+        ],
+        max_tokens=1500,
+        temperature=0.5,
+    )
+
+    return response.choices[0].message.content.strip()
