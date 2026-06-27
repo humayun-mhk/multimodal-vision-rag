@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import upload, query
 from config import CORS_ORIGINS, PORT
+from services.openai_client import is_openai_configured
 from services.vector_db import ensure_index_dir, load_index
 import uvicorn
 
@@ -40,11 +41,11 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "openai_configured": is_openai_configured()}
 
 @app.get("/api/health")
 def api_health():
-    return {"status": "ok"}
+    return {"status": "ok", "openai_configured": is_openai_configured()}
 
 if __name__ == "__main__":
     uvicorn.run(

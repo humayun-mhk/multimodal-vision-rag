@@ -1,15 +1,11 @@
 import base64
 import json
-from openai import AsyncOpenAI
-from config import OPENAI_API_KEY, OPENAI_VISION_MODEL
-
-client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+from config import OPENAI_VISION_MODEL
+from services.openai_client import get_openai_client, is_openai_configured
 
 
-def _client() -> AsyncOpenAI:
-    if client is None:
-        raise RuntimeError("OPENAI_API_KEY is not configured")
-    return client
+def _client():
+    return get_openai_client()
 
 
 def encode_image_to_base64(image_bytes: bytes) -> str:
@@ -115,7 +111,7 @@ async def answer_general(query: str) -> str:
     """
     Answer as a normal chat assistant when no indexed document context is available.
     """
-    if client is None:
+    if not is_openai_configured():
         return (
             "The backend is running, but the OpenAI API key is not configured yet. "
             "Please add OPENAI_API_KEY as a Hugging Face Space secret, then restart "

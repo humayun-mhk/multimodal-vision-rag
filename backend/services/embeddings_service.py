@@ -1,14 +1,10 @@
 import numpy as np
-from openai import AsyncOpenAI
-from config import OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL
-
-client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+from config import OPENAI_EMBEDDING_MODEL
+from services.openai_client import get_openai_client
 
 
-def _client() -> AsyncOpenAI:
-    if client is None:
-        raise RuntimeError("OPENAI_API_KEY is not configured")
-    return client
+def _client():
+    return get_openai_client()
 
 
 async def get_embedding(text: str) -> list[float]:
