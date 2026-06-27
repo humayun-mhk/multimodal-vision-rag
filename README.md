@@ -10,6 +10,8 @@ license: mit
 
 A production-ready Retrieval-Augmented Generation (RAG) system supporting **PDF, images, and text** powered by **GPT-4o**, **FAISS**, **FastAPI**, and **React**.
 
+**Live Demo:** https://multimodal-vision-rag-dfqh.vercel.app/
+
 ---
 
 ## 🏗 Architecture
