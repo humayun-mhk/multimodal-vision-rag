@@ -115,6 +115,13 @@ async def answer_general(query: str) -> str:
     """
     Answer as a normal chat assistant when no indexed document context is available.
     """
+    if client is None:
+        return (
+            "The backend is running, but the OpenAI API key is not configured yet. "
+            "Please add OPENAI_API_KEY as a Hugging Face Space secret, then restart "
+            "the Space. After that I can answer normally and process uploaded documents."
+        )
+
     system_prompt = """You are a helpful AI assistant.
 Answer the user's question directly and clearly.
 If the question appears to be about uploaded documents, explain that no document context is currently available and answer generally if possible."""
