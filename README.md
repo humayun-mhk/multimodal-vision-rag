@@ -1,10 +1,3 @@
----
-title: Multimodal Vision RAG API
-sdk: docker
-app_port: 7860
-pinned: false
-license: mit
----
 
 # Multimodal RAG System
 
