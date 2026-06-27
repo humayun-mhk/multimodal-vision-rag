@@ -3,7 +3,13 @@ import json
 from openai import AsyncOpenAI
 from config import OPENAI_API_KEY, OPENAI_VISION_MODEL
 
-client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+
+def _client() -> AsyncOpenAI:
+    if client is None:
+        raise RuntimeError("OPENAI_API_KEY is not configured")
+    return client
 
 
 def encode_image_to_base64(image_bytes: bytes) -> str:
@@ -27,7 +33,7 @@ Respond ONLY with valid JSON in this exact format:
   "entities": ["list", "of", "key", "entities", "found"]
 }"""
 
-    response = await client.chat.completions.create(
+    response = await _client().chat.completions.create(
         model=OPENAI_VISION_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
@@ -92,7 +98,7 @@ User Question: {query}
 
 Answer based on the context above:"""
 
-    response = await client.chat.completions.create(
+    response = await _client().chat.completions.create(
         model=OPENAI_VISION_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},

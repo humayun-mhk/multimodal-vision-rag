@@ -1,10 +1,12 @@
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const DEFAULT_API_BASE = 'http://localhost:8000/api'
+const API_BASE = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/+$/, '')
+const API_TIMEOUT_MS = Number(import.meta.env.VITE_API_TIMEOUT_MS || 180000)
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 60000,
+  timeout: API_TIMEOUT_MS,
 })
 
 /**

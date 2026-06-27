@@ -13,6 +13,11 @@ INDEX_FILE = os.path.join(FAISS_INDEX_PATH, "index.bin")
 META_FILE = os.path.join(FAISS_INDEX_PATH, "metadata.json")
 
 
+def ensure_index_dir():
+    """Create the FAISS persistence directory if it does not exist."""
+    os.makedirs(FAISS_INDEX_PATH, exist_ok=True)
+
+
 def _get_or_create_index() -> faiss.IndexFlatL2:
     global _index
     if _index is None:
@@ -23,6 +28,7 @@ def _get_or_create_index() -> faiss.IndexFlatL2:
 
 def save_index():
     """Persist FAISS index and metadata to disk."""
+    ensure_index_dir()
     idx = _get_or_create_index()
     faiss.write_index(idx, INDEX_FILE)
     with open(META_FILE, "w") as f:
@@ -32,11 +38,19 @@ def save_index():
 def load_index():
     """Load FAISS index and metadata from disk if available."""
     global _index, _metadata
+    ensure_index_dir()
     if os.path.exists(INDEX_FILE) and os.path.exists(META_FILE):
         _index = faiss.read_index(INDEX_FILE)
         with open(META_FILE, "r") as f:
             _metadata = json.load(f)
-        print(f"[FAISS] Loaded index with {_index.ntotal} vectors")
+        if _index.ntotal != len(_metadata):
+            print(
+                f"[FAISS] Index/metadata mismatch ({_index.ntotal} vectors, "
+                f"{len(_metadata)} metadata rows). Starting with an empty index."
+            )
+            reset_index()
+        else:
+            print(f"[FAISS] Loaded index with {_index.ntotal} vectors")
     else:
         _index = None
         _metadata = []
@@ -48,6 +62,7 @@ def reset_index():
     dim = get_embedding_dimension()
     _index = faiss.IndexFlatL2(dim)
     _metadata = []
+    save_index()
 
 
 async def add_documents(chunks: list[str], source: str = "unknown"):

@@ -2,7 +2,13 @@ import numpy as np
 from openai import AsyncOpenAI
 from config import OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL
 
-client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+client = AsyncOpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+
+
+def _client() -> AsyncOpenAI:
+    if client is None:
+        raise RuntimeError("OPENAI_API_KEY is not configured")
+    return client
 
 
 async def get_embedding(text: str) -> list[float]:
@@ -11,7 +17,7 @@ async def get_embedding(text: str) -> list[float]:
     if not text:
         raise ValueError("Cannot embed empty text")
 
-    response = await client.embeddings.create(
+    response = await _client().embeddings.create(
         model=OPENAI_EMBEDDING_MODEL,
         input=text
     )
@@ -24,7 +30,7 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     if not cleaned:
         return []
 
-    response = await client.embeddings.create(
+    response = await _client().embeddings.create(
         model=OPENAI_EMBEDDING_MODEL,
         input=cleaned
     )

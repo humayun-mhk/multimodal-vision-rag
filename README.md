@@ -1,4 +1,12 @@
-# 🧠 Multimodal RAG System
+---
+title: Multimodal Vision RAG API
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
+# Multimodal RAG System
 
 A production-ready Retrieval-Augmented Generation (RAG) system supporting **PDF, images, and text** powered by **GPT-4o**, **FAISS**, **FastAPI**, and **React**.
 
@@ -160,3 +168,43 @@ curl -X POST http://localhost:8000/api/query \
 | Styling | Tailwind CSS |
 | HTTP | Axios |
 | Deploy | Docker / Vercel / Render |
+
+---
+
+## Clean Deployment Path
+
+### Backend on Hugging Face Spaces
+
+Use a Docker Space from the repo root. The root `Dockerfile` builds the FastAPI backend and listens on port `7860`, matching the Space metadata at the top of this README.
+
+Set these Hugging Face Space secrets or variables:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+OPENAI_VISION_MODEL=gpt-4o
+FAISS_INDEX_PATH=/data/faiss_index
+PORT=7860
+CORS_ORIGINS=https://your-vercel-domain.vercel.app
+```
+
+Enable persistent storage on the Space if you want uploaded documents and FAISS index files to survive restarts. Without persistent storage, the app still works, but the index resets when the container restarts.
+
+### Frontend on Vercel
+
+Deploy the repo to Vercel. The root `vercel.json` builds the `frontend` folder.
+
+Set these Vercel environment variables:
+
+```env
+VITE_API_URL=https://your-huggingface-space.hf.space/api
+VITE_API_TIMEOUT_MS=180000
+```
+
+Build command: `npm run build --prefix frontend`
+Output directory: `frontend/dist`
+
+### Local URLs
+
+Backend: `http://localhost:8000`
+Frontend: `http://localhost:3000`
