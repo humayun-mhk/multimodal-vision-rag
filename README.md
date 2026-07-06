@@ -1,9 +1,22 @@
+---
+title: Multimodal Vision RAG
+emoji: 🧠
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
 
-# Multimodal RAG System
+# Multimodal Vision RAG
 
 A production-ready Retrieval-Augmented Generation (RAG) system supporting **PDF, images, and text** powered by **GPT-4o**, **FAISS**, **FastAPI**, and **React**.
 
-**Live Demo:** https://multimodal-vision-rag-dfqh.vercel.app/
+![Multimodal Vision RAG](./Multi_model_Vision.png)
+
+**GitHub:** [humayun-mhk/multimodal-vision-rag](https://github.com/humayun-mhk/multimodal-vision-rag)
+
+**Demo:** https://multimodal-vision-rag-dfqh.vercel.app/
 
 ---
 
