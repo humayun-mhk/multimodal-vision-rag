@@ -37,7 +37,10 @@ async def query_rag(request: QueryRequest):
 
     stats = get_index_stats()
     if stats["total_vectors"] == 0:
-        answer = await answer_general(query)
+        try:
+            answer = await answer_general(query)
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"Answer generation failed: {exc}") from exc
         return QueryResponse(
             answer=answer,
             sources=[],
@@ -50,7 +53,10 @@ async def query_rag(request: QueryRequest):
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Document search failed: {exc}") from exc
     if not results:
-        answer = await answer_general(query)
+        try:
+            answer = await answer_general(query)
+        except Exception as exc:
+            raise HTTPException(status_code=502, detail=f"Answer generation failed: {exc}") from exc
         return QueryResponse(
             answer=answer,
             sources=[],
