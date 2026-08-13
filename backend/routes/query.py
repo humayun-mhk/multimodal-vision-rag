@@ -45,7 +45,10 @@ async def query_rag(request: QueryRequest):
         )
 
     # Semantic search
-    results = await search(query, top_k=request.top_k)
+    try:
+        results = await search(query, top_k=request.top_k)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Document search failed: {exc}") from exc
     if not results:
         answer = await answer_general(query)
         return QueryResponse(
@@ -58,7 +61,10 @@ async def query_rag(request: QueryRequest):
     context_chunks = [r["text"] for r in results]
 
     # Generate a grounded answer with Gemini.
-    answer = await answer_with_context(query, context_chunks)
+    try:
+        answer = await answer_with_context(query, context_chunks)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Answer generation failed: {exc}") from exc
 
     # Format sources for response
     sources = [
