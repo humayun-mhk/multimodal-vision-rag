@@ -1,5 +1,6 @@
-import base64
 import json
+from google.genai import types
+
 from config import GEMINI_MODEL
 from services.gemini_client import get_gemini_client, is_gemini_configured
 
@@ -8,18 +9,11 @@ def _client():
     return get_gemini_client()
 
 
-def encode_image_to_base64(image_bytes: bytes) -> str:
-    """Convert image bytes to base64 string."""
-    return base64.b64encode(image_bytes).decode("utf-8")
-
-
 async def extract_from_image(image_bytes: bytes, filename: str = "image") -> dict:
     """
     Use Gemini vision to extract structured content from an image.
     Returns: { text, summary, entities }
     """
-    b64_image = encode_image_to_base64(image_bytes)
-
     system_prompt = """You are an expert document and image analyzer.
 Extract all readable text and meaningful information from the provided image.
 Respond ONLY with valid JSON in this exact format:
@@ -29,32 +23,21 @@ Respond ONLY with valid JSON in this exact format:
   "entities": ["list", "of", "key", "entities", "found"]
 }"""
 
-    response = await _client().chat.completions.create(
+    response = await _client().aio.models.generate_content(
         model=GEMINI_MODEL,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64_image}",
-                            "detail": "high"
-                        }
-                    },
-                    {
-                        "type": "text",
-                        "text": f"Extract all content from this image (filename: {filename}). Return valid JSON only."
-                    }
-                ]
-            }
+        contents=[
+            types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"),
+            f"Extract all content from this image (filename: {filename}). Return valid JSON only.",
         ],
-        max_tokens=2000,
-        temperature=0.1
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            max_output_tokens=2000,
+            temperature=0.1,
+            response_mime_type="application/json",
+        ),
     )
 
-    raw = response.choices[0].message.content.strip()
+    raw = (response.text or "").strip()
 
     # Strip markdown code fences if present
     if raw.startswith("```"):
@@ -94,17 +77,17 @@ User Question: {query}
 
 Answer based on the context above:"""
 
-    response = await _client().chat.completions.create(
+    response = await _client().aio.models.generate_content(
         model=GEMINI_MODEL,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message}
-        ],
-        max_tokens=1500,
-        temperature=0.3
+        contents=user_message,
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            max_output_tokens=1500,
+            temperature=0.3,
+        ),
     )
 
-    return response.choices[0].message.content.strip()
+    return (response.text or "").strip()
 
 
 async def answer_general(query: str) -> str:
@@ -122,14 +105,14 @@ async def answer_general(query: str) -> str:
 Answer the user's question directly and clearly.
 If the question appears to be about uploaded documents, explain that no document context is currently available and answer generally if possible."""
 
-    response = await _client().chat.completions.create(
+    response = await _client().aio.models.generate_content(
         model=GEMINI_MODEL,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": query},
-        ],
-        max_tokens=1500,
-        temperature=0.5,
+        contents=query,
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            max_output_tokens=1500,
+            temperature=0.5,
+        ),
     )
 
-    return response.choices[0].message.content.strip()
+    return (response.text or "").strip()
