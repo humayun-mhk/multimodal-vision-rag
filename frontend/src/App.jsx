@@ -48,7 +48,7 @@ export default function App() {
           </div>
           <div>
             <h1 className="text-sm font-bold tracking-tight text-white">Multimodal RAG</h1>
-            <p className="text-xs text-gray-500">GPT-4o · FAISS · FastAPI</p>
+            <p className="text-xs text-gray-500">Gemini · FAISS · FastAPI</p>
           </div>
         </div>
 

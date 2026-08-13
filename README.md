@@ -191,7 +191,6 @@ Set these Hugging Face Space secrets or variables:
 GOOGLE_API_KEY=your_google_api_key
 GEMINI_MODEL=gemini-3.6-flash
 GEMINI_EMBEDDING_MODEL=gemini-embedding-001
-EMBEDDING_DIMENSION=1536
 FAISS_INDEX_PATH=/data/faiss_index
 PORT=7860
 CORS_ORIGINS=https://your-vercel-domain.vercel.app

@@ -17,7 +17,6 @@ def _get_int(name: str, default: int) -> int:
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "") or os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 GEMINI_EMBEDDING_MODEL = os.getenv("GEMINI_EMBEDDING_MODEL", "gemini-embedding-001")
-EMBEDDING_DIMENSION = _get_int("EMBEDDING_DIMENSION", 1536)
 FAISS_INDEX_PATH = os.getenv("FAISS_INDEX_PATH", "./data/faiss_index")
 CHUNK_SIZE = _get_int("CHUNK_SIZE", 500)
 CHUNK_OVERLAP = _get_int("CHUNK_OVERLAP", 50)

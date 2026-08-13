@@ -1,6 +1,7 @@
-import numpy as np
-from config import EMBEDDING_DIMENSION, GEMINI_EMBEDDING_MODEL
+from config import GEMINI_EMBEDDING_MODEL
 from services.gemini_client import get_gemini_client
+
+GEMINI_EMBEDDING_DIMENSION = 3072
 
 
 def _client():
@@ -16,7 +17,6 @@ async def get_embedding(text: str) -> list[float]:
     response = await _client().embeddings.create(
         model=GEMINI_EMBEDDING_MODEL,
         input=text,
-        dimensions=EMBEDDING_DIMENSION,
     )
     return response.data[0].embedding
 
@@ -30,11 +30,10 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     response = await _client().embeddings.create(
         model=GEMINI_EMBEDDING_MODEL,
         input=cleaned,
-        dimensions=EMBEDDING_DIMENSION,
     )
     return [item.embedding for item in response.data]
 
 
 def get_embedding_dimension() -> int:
     """Return the configured Gemini embedding dimension."""
-    return EMBEDDING_DIMENSION
+    return GEMINI_EMBEDDING_DIMENSION

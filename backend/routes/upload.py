@@ -80,7 +80,10 @@ async def upload_file(file: UploadFile = File(...)):
     if not chunks:
         raise HTTPException(status_code=422, detail="Text extraction produced no usable chunks.")
 
-    await add_documents(chunks, source=filename)
+    try:
+        await add_documents(chunks, source=filename)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Document indexing failed: {exc}") from exc
     stats = get_index_stats()
 
     return JSONResponse({
