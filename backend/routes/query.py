@@ -3,9 +3,9 @@ from pydantic import BaseModel
 from services.vector_db import search, get_index_stats
 from services.openai_service import answer_general, answer_with_context
 from config import TOP_K
+from utils.chat import is_greeting
 
 router = APIRouter()
-
 
 class QueryRequest(BaseModel):
     query: str
@@ -27,6 +27,13 @@ async def query_rag(request: QueryRequest):
     query = request.query.strip()
     if not query:
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
+
+    if is_greeting(query):
+        return QueryResponse(
+            answer="Hello! How can I help you with your documents?",
+            sources=[],
+            chunks_used=0,
+        )
 
     stats = get_index_stats()
     if stats["total_vectors"] == 0:

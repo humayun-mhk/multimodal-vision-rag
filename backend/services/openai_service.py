@@ -3,6 +3,7 @@ from google.genai import types
 
 from config import GEMINI_MODEL
 from services.gemini_client import get_gemini_client, is_gemini_configured
+from utils.chat import plain_text
 
 
 def _client():
@@ -67,7 +68,8 @@ async def answer_with_context(query: str, context_chunks: list[str]) -> str:
     system_prompt = """You are a helpful AI assistant with access to documents uploaded by the user.
 Use the provided context chunks to answer the question accurately.
 If the answer is not found in the context, say so clearly.
-Be concise, factual, and cite which chunk your answer comes from when relevant."""
+Be concise, factual, and cite which chunk your answer comes from when relevant.
+Do not use Markdown bold markers or asterisks in the answer."""
 
     user_message = f"""Context from uploaded documents:
 {context_text}
@@ -87,7 +89,7 @@ Answer based on the context above:"""
         ),
     )
 
-    return (response.text or "").strip()
+    return plain_text(response.text)
 
 
 async def answer_general(query: str) -> str:
@@ -103,7 +105,8 @@ async def answer_general(query: str) -> str:
 
     system_prompt = """You are a helpful AI assistant.
 Answer the user's question directly and clearly.
-If the question appears to be about uploaded documents, explain that no document context is currently available and answer generally if possible."""
+If the question appears to be about uploaded documents, explain that no document context is currently available and answer generally if possible.
+Do not use Markdown bold markers or asterisks in the answer."""
 
     response = await _client().aio.models.generate_content(
         model=GEMINI_MODEL,
@@ -115,4 +118,4 @@ If the question appears to be about uploaded documents, explain that no document
         ),
     )
 
-    return (response.text or "").strip()
+    return plain_text(response.text)

@@ -34,7 +34,7 @@ export default function ChatBox({ documentsIndexed }) {
       const botMsg = {
         id: Date.now() + 1,
         role: 'assistant',
-        content: data.answer,
+        content: data.answer.replaceAll('**', ''),
         sources: data.sources,
         chunksUsed: data.chunks_used,
       }
