@@ -1,10 +1,10 @@
 import numpy as np
-from config import OPENAI_EMBEDDING_MODEL
-from services.openai_client import get_openai_client
+from config import EMBEDDING_DIMENSION, GEMINI_EMBEDDING_MODEL
+from services.gemini_client import get_gemini_client
 
 
 def _client():
-    return get_openai_client()
+    return get_gemini_client()
 
 
 async def get_embedding(text: str) -> list[float]:
@@ -14,8 +14,9 @@ async def get_embedding(text: str) -> list[float]:
         raise ValueError("Cannot embed empty text")
 
     response = await _client().embeddings.create(
-        model=OPENAI_EMBEDDING_MODEL,
-        input=text
+        model=GEMINI_EMBEDDING_MODEL,
+        input=text,
+        dimensions=EMBEDDING_DIMENSION,
     )
     return response.data[0].embedding
 
@@ -27,12 +28,13 @@ async def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
         return []
 
     response = await _client().embeddings.create(
-        model=OPENAI_EMBEDDING_MODEL,
-        input=cleaned
+        model=GEMINI_EMBEDDING_MODEL,
+        input=cleaned,
+        dimensions=EMBEDDING_DIMENSION,
     )
     return [item.embedding for item in response.data]
 
 
 def get_embedding_dimension() -> int:
-    """Return the dimension for text-embedding-3-small."""
-    return 1536
+    """Return the configured Gemini embedding dimension."""
+    return EMBEDDING_DIMENSION

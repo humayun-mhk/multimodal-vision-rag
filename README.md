@@ -10,7 +10,7 @@ pinned: false
 
 # Multimodal Vision RAG
 
-A production-ready Retrieval-Augmented Generation (RAG) system supporting **PDF, images, and text** powered by **GPT-4o**, **FAISS**, **FastAPI**, and **React**.
+A production-ready Retrieval-Augmented Generation (RAG) system supporting **PDF, images, and text** powered by **Google Gemini**, **FAISS**, **FastAPI**, and **React**.
 
 ![Multimodal Vision RAG](./Multi_model_Vision.png)
 
@@ -27,11 +27,11 @@ User uploads file (PDF / Image / Text)
          ↓
   FastAPI Backend receives file
          ↓
-  GPT-4o Vision extracts content
+  Gemini Vision extracts content
          ↓
   Text chunked into segments
          ↓
-  OpenAI Embeddings → FAISS index
+  Gemini Embeddings → FAISS index
          ↓
   User asks a question
          ↓
@@ -39,7 +39,7 @@ User uploads file (PDF / Image / Text)
          ↓
   Top-K chunks retrieved as context
          ↓
-  GPT-4o generates answer
+  Gemini generates answer
          ↓
   React UI displays response + sources
 ```
@@ -59,8 +59,8 @@ multimodal-rag/
 │   │   ├── upload.py            # POST /api/upload
 │   │   └── query.py             # POST /api/query
 │   ├── services/
-│   │   ├── openai_service.py    # GPT-4o vision + RAG answering
-│   │   ├── embeddings_service.py # OpenAI embeddings
+│   │   ├── openai_service.py    # Gemini vision + RAG answering
+│   │   ├── embeddings_service.py # Gemini embeddings
 │   │   └── vector_db.py         # FAISS index management
 │   └── utils/
 │       ├── chunker.py           # Text splitting
@@ -86,14 +86,14 @@ multimodal-rag/
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
-- OpenAI API key
+- Google AI API key
 
 ### 1. Backend Setup
 
 ```bash
 cd backend
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+cp ../.env.example .env
+# Edit .env and add your GOOGLE_API_KEY
 
 pip install -r requirements.txt
 python main.py
@@ -115,8 +115,8 @@ npm run dev
 ## 🐳 Docker (Full Stack)
 
 ```bash
-cp backend/.env.example .env
-# Set OPENAI_API_KEY in .env
+cp .env.example .env
+# Set GOOGLE_API_KEY in .env
 
 docker-compose up --build
 # Frontend: http://localhost:3000
@@ -153,7 +153,7 @@ curl -X POST http://localhost:8000/api/query \
 
 ### Backend → Render / Railway
 1. Push `backend/` to a GitHub repo
-2. Set `OPENAI_API_KEY` as an environment variable
+2. Set `GOOGLE_API_KEY` as an environment variable
 3. Set start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
 ### Frontend → Vercel
@@ -167,8 +167,8 @@ curl -X POST http://localhost:8000/api/query \
 
 | Layer | Tech |
 |-------|------|
-| LLM | OpenAI GPT-4o |
-| Embeddings | OpenAI text-embedding-3-small |
+| LLM | Google Gemini 3.6 Flash |
+| Embeddings | Google Gemini Embedding |
 | Vector DB | FAISS (CPU) |
 | Backend | FastAPI + Python 3.11 |
 | PDF parsing | PyMuPDF |
@@ -188,9 +188,10 @@ Use a Docker Space from the repo root. The root `Dockerfile` builds the FastAPI 
 Set these Hugging Face Space secrets or variables:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_EMBEDDING_MODEL=text-embedding-3-small
-OPENAI_VISION_MODEL=gpt-4o
+GOOGLE_API_KEY=your_google_api_key
+GEMINI_MODEL=gemini-3.6-flash
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+EMBEDDING_DIMENSION=1536
 FAISS_INDEX_PATH=/data/faiss_index
 PORT=7860
 CORS_ORIGINS=https://your-vercel-domain.vercel.app

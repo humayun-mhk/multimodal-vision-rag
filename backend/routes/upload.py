@@ -47,14 +47,14 @@ async def upload_file(file: UploadFile = File(...)):
             result = await extract_from_image(file_bytes, filename)
             extracted_text = clean_text(result.get("text", ""))
             extraction_meta = {
-                "method": "gpt4o_vision",
+                "method": "gemini_vision",
                 "summary": result.get("summary", ""),
                 "entities": result.get("entities", [])
             }
 
         elif file_type == "pdf":
             if is_scanned_pdf(file_bytes):
-                # Scanned PDF — convert pages to images and use GPT-4o Vision
+                # Convert scanned PDF pages to images for Gemini vision extraction.
                 images = pdf_to_images(file_bytes)
                 all_text = []
                 for i, img_bytes in enumerate(images):
@@ -63,7 +63,7 @@ async def upload_file(file: UploadFile = File(...)):
                     if page_text.strip():
                         all_text.append(f"[Page {i+1}]\n{page_text}")
                 extracted_text = clean_text("\n\n".join(all_text))
-                extraction_meta = {"method": "gpt4o_vision_pdf"}
+                extraction_meta = {"method": "gemini_vision_pdf"}
             else:
                 raw = extract_text_from_pdf(file_bytes)
                 extracted_text = clean_text(raw)

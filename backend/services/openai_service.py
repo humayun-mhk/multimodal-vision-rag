@@ -1,11 +1,11 @@
 import base64
 import json
-from config import OPENAI_VISION_MODEL
-from services.openai_client import get_openai_client, is_openai_configured
+from config import GEMINI_MODEL
+from services.gemini_client import get_gemini_client, is_gemini_configured
 
 
 def _client():
-    return get_openai_client()
+    return get_gemini_client()
 
 
 def encode_image_to_base64(image_bytes: bytes) -> str:
@@ -15,7 +15,7 @@ def encode_image_to_base64(image_bytes: bytes) -> str:
 
 async def extract_from_image(image_bytes: bytes, filename: str = "image") -> dict:
     """
-    Use GPT-4o vision to extract structured content from an image.
+    Use Gemini vision to extract structured content from an image.
     Returns: { text, summary, entities }
     """
     b64_image = encode_image_to_base64(image_bytes)
@@ -30,7 +30,7 @@ Respond ONLY with valid JSON in this exact format:
 }"""
 
     response = await _client().chat.completions.create(
-        model=OPENAI_VISION_MODEL,
+        model=GEMINI_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {
@@ -75,7 +75,7 @@ Respond ONLY with valid JSON in this exact format:
 
 async def answer_with_context(query: str, context_chunks: list[str]) -> str:
     """
-    Send user query + retrieved context to GPT-4o for a final answer.
+    Send user query and retrieved context to Gemini for a final answer.
     """
     context_text = "\n\n---\n\n".join(
         [f"[Chunk {i+1}]:\n{chunk}" for i, chunk in enumerate(context_chunks)]
@@ -95,7 +95,7 @@ User Question: {query}
 Answer based on the context above:"""
 
     response = await _client().chat.completions.create(
-        model=OPENAI_VISION_MODEL,
+        model=GEMINI_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}
@@ -111,10 +111,10 @@ async def answer_general(query: str) -> str:
     """
     Answer as a normal chat assistant when no indexed document context is available.
     """
-    if not is_openai_configured():
+    if not is_gemini_configured():
         return (
-            "The backend is running, but the OpenAI API key is not configured yet. "
-            "Please add OPENAI_API_KEY as a Hugging Face Space secret, then restart "
+            "The backend is running, but the Google API key is not configured yet. "
+            "Please add GOOGLE_API_KEY as a Hugging Face Space secret, then restart "
             "the Space. After that I can answer normally and process uploaded documents."
         )
 
@@ -123,7 +123,7 @@ Answer the user's question directly and clearly.
 If the question appears to be about uploaded documents, explain that no document context is currently available and answer generally if possible."""
 
     response = await _client().chat.completions.create(
-        model=OPENAI_VISION_MODEL,
+        model=GEMINI_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": query},

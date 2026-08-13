@@ -22,7 +22,7 @@ class QueryResponse(BaseModel):
 async def query_rag(request: QueryRequest):
     """
     RAG query endpoint.
-    Flow: query → embed → FAISS search → context → GPT-4o → answer
+    Flow: query, embed, FAISS search, context, Gemini, answer.
     """
     query = request.query.strip()
     if not query:
@@ -50,7 +50,7 @@ async def query_rag(request: QueryRequest):
     # Extract text chunks for context
     context_chunks = [r["text"] for r in results]
 
-    # GPT-4o reasoning
+    # Generate a grounded answer with Gemini.
     answer = await answer_with_context(query, context_chunks)
 
     # Format sources for response

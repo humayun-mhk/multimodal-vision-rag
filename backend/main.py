@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import upload, query
 from config import CORS_ORIGINS, PORT
-from services.openai_client import is_openai_configured
+from services.gemini_client import is_gemini_configured
 from services.vector_db import ensure_index_dir, load_index
 import uvicorn
 
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Multimodal RAG API",
-    description="RAG system supporting PDF, image, and text with GPT-4o",
+    description="RAG system supporting PDF, image, and text with Gemini",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -41,11 +41,11 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "openai_configured": is_openai_configured()}
+    return {"status": "ok", "gemini_configured": is_gemini_configured()}
 
 @app.get("/api/health")
 def api_health():
-    return {"status": "ok", "openai_configured": is_openai_configured()}
+    return {"status": "ok", "gemini_configured": is_gemini_configured()}
 
 if __name__ == "__main__":
     uvicorn.run(
